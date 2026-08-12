@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/continuity_ledger",
+  "title": "Continuity Ledger",
+  "description": "Living state of relationships, secrets, wardrobe, locations, promises, and unresolved threads. Loaded before writing the next episode of a serialized story.",
+  "type": "object",
+  "required": ["version", "project_id", "entries", "unresolved_threads"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "project_id": { "type": "string" },
+    "episode_number": { "type": "integer", "minimum": 1 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity_type", "entity_id", "key", "value"],
+        "properties": {
+          "entity_type": { "type": "string", "enum": ["character", "location", "object", "relationship", "plot_thread"] },
+          "entity_id": { "type": "string" },
+          "key": {
+            "type": "string",
+            "description": "What aspect is being tracked (e.g. 'wardrobe', 'location', 'emotional_state', 'known_secrets')"
+          },
+          "value": { "type": "string" },
+          "first_seen_section": { "type": "string" },
+          "last_updated_section": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "unresolved_threads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "opened_in_section": { "type": "string" },
+          "intended_payoff_section": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "quality_scores": {
+      "type": "object",
+      "description": "Reviewer scores across 10 dimensions, 0-10 each",
+      "properties": {
+        "hook_strength": { "type": "number", "minimum": 0, "maximum": 10 },
+        "originality": { "type": "number", "minimum": 0, "maximum": 10 },
+        "emotional_progression": { "type": "number", "minimum": 0, "maximum": 10 },
+        "romantic_chemistry": { "type": "number", "minimum": 0, "maximum": 10 },
+        "character_motivation": { "type": "number", "minimum": 0, "maximum": 10 },
+        "conflict_credibility": { "type": "number", "minimum": 0, "maximum": 10 },
+        "dialogue_quality": { "type": "number", "minimum": 0, "maximum": 10 },
+        "continuity": { "type": "number", "minimum": 0, "maximum": 10 },
+        "retention_potential": { "type": "number", "minimum": 0, "maximum": 10 },
+        "ending_satisfaction": { "type": "number", "minimum": 0, "maximum": 10 }
+      },
+      "additionalProperties": false
+    },
+    "revision_required": { "type": "boolean", "default": false },
+    "revision_reasons": { "type": "array", "items": { "type": "string" } },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

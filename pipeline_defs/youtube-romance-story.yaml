@@ -1,0 +1,491 @@
+name: youtube-romance-story
+version: "1.0"
+description: >
+  Faceless YouTube romance-story production engine. Transforms a one-sentence
+  premise into a complete, original video package: story bible, structured
+  script, character-consistent visuals, narration, music, captions, Shorts,
+  thumbnails, and a YouTube metadata package. Supports long-form, Shorts,
+  serialized, confession, and text-message formats. Uses OpenMontage tools
+  for TTS, image generation, music, composition, and captions.
+category: custom
+stability: beta
+default_checkpoint_policy: guided
+
+extensions:
+  custom_scripts: true
+  custom_playbooks: true
+  custom_skills: true
+  custom_tools: false
+
+required_skills:
+  - pipelines/youtube-romance-story/intake-director
+  - pipelines/youtube-romance-story/concept-director
+  - pipelines/youtube-romance-story/story-bible-director
+  - pipelines/youtube-romance-story/outline-director
+  - pipelines/youtube-romance-story/script-director
+  - pipelines/youtube-romance-story/continuity-review-director
+  - pipelines/youtube-romance-story/scene-director
+  - pipelines/youtube-romance-story/character-assets-director
+  - pipelines/youtube-romance-story/visual-assets-director
+  - pipelines/youtube-romance-story/voice-director
+  - pipelines/youtube-romance-story/music-director
+  - pipelines/youtube-romance-story/compose-director
+  - pipelines/youtube-romance-story/quality-review-director
+  - pipelines/youtube-romance-story/shorts-director
+  - pipelines/youtube-romance-story/thumbnail-director
+  - pipelines/youtube-romance-story/youtube-package-director
+  - pipelines/youtube-romance-story/publish-director
+  - meta/reviewer
+  - meta/checkpoint-protocol
+
+compatible_playbooks:
+  recommended:
+    - cinematic-realism
+  also_works:
+    - clean-professional
+    - flat-motion-graphics
+  custom_allowed: true
+
+orchestration:
+  mode: executive-producer
+  skill: pipelines/youtube-romance-story/executive-producer
+  budget_default_usd: 5.00
+  max_revisions_per_stage: 3
+  max_send_backs: 3
+  max_wall_time_minutes: 30
+
+# Map canonical OpenMontage stage names → romance-specific stage names.
+# This keeps checkpoint.py and pipeline_loader.py happy while letting the
+# romance pipeline use its own richer vocabulary.
+metadata:
+  canonical_stage_map:
+    idea: intake
+    proposal: concept
+    script: script
+    scene_plan: scene_plan
+    assets: visual_assets
+    edit: compose
+    compose: compose
+    publish: publish
+  formats:
+    - long_form
+    - short
+    - serialized
+    - confession
+    - text_message
+  genres:
+    - second_chance
+    - forbidden_love
+    - friends_to_lovers
+    - enemies_to_lovers
+    - secret_identity
+    - workplace
+    - small_town
+    - billionaire
+    - unexpected_inheritance
+    - marriage_of_convenience
+    - long_distance
+    - lost_love
+    - love_after_divorce
+    - mature
+    - holiday
+    - romantic_mystery
+    - romantic_suspense
+    - betrayal_redemption
+    - family_disapproval
+    - class_difference
+    - accidental_meeting
+    - fake_relationship
+    - single_parent
+    - military_reunion
+    - historical
+    - supernatural
+  visual_modes:
+    - economical   # stills + HyperFrames/Remotion animation, lowest cost
+    - hybrid       # character stills + stock env + short AI-video hero moments
+    - cinematic    # AI-generated video clips, higher budget
+
+stages:
+  - name: intake
+    skill: pipelines/youtube-romance-story/intake-director
+    produces:
+      - brief
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Premise, genre, format, and audience are all set
+      - Sensible defaults were applied for missing fields
+      - Content safety check passed (no minors in sexual context, no real private people)
+    success_criteria:
+      - Schema-valid brief artifact
+      - At least premise, format, and target_duration set
+
+  - name: proposal
+    skill: pipelines/youtube-romance-story/concept-director
+    required_artifacts_in:
+      - brief
+    produces:
+      - proposal_packet
+      - decision_log
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Hook is curiosity/tension/danger/desire/surprise — not background exposition
+      - Three concept options with different emotional angles
+      - Selected concept has clear romantic arc and a meaningful mystery
+      - Genre influence is visible in setting, tone, and stakes
+    success_criteria:
+      - Schema-valid proposal_packet artifact
+      - Hook line ≤ 30 words and obeys the "no background first" rule
+      - Emotional arc maps to all required beats (hook → setup → inciting encounter → rising attraction → complication → midpoint shift → emotional break → final choice → payoff → final button)
+
+  - name: story_bible
+    skill: pipelines/youtube-romance-story/story-bible-director
+    required_artifacts_in:
+      - proposal_packet
+    produces:
+      - story_bible
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Every recurring character has a stable character_id
+      - Face/hair/wardrobe/palette descriptions are specific enough to lock visual generation
+      - Voice assignments are stable per character
+      - Negative prompts prevent unwanted feature drift
+    success_criteria:
+      - Schema-valid story_bible artifact
+      - Every named character has visual_reference_prompt and negative_prompt
+      - Voice assignments cover narrator + every speaking character
+
+  - name: outline
+    skill: pipelines/youtube-romance-story/outline-director
+    required_artifacts_in:
+      - proposal_packet
+      - story_bible
+    produces:
+      - outline
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Every required emotional beat is present and in order
+      - Beats are concrete scenes, not abstract summaries
+      - Approximate word counts sum to target duration × ~150 WPM
+      - Serialized episodes end with an unresolved emotional question
+    success_criteria:
+      - Schema-valid outline artifact
+      - All 10 required beats present (hook through final_button)
+
+  - name: script
+    skill: pipelines/youtube-romance-story/script-director
+    required_artifacts_in:
+      - outline
+      - story_bible
+    produces:
+      - script
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Hook delivered in the first spoken line, not buried in setup
+      - Tense and viewpoint consistent throughout
+      - Speaker attribution is unambiguous
+      - Dialogue feels earned, not melodramatic
+      - Concrete sensory details, not generic AI prose
+      - No repeated rhetorical questions or filler
+      - Originality check passes — no copyrighted characters or direct imitation
+    success_criteria:
+      - Schema-valid script artifact
+      - Word count within ±15% of target
+      - Section timestamps map cleanly to scenes
+
+  - name: continuity_review
+    skill: pipelines/youtube-romance-story/continuity-review-director
+    required_artifacts_in:
+      - script
+      - story_bible
+    optional_artifacts_in:
+      - continuity_ledger
+    produces:
+      - review
+      - continuity_ledger
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Characters do not change name, age, ethnicity, hair, or wardrobe
+      - Timeline is internally consistent
+      - Promises made earlier are paid off (or flagged as unresolved)
+      - Speech style matches each character's defined voice
+      - Quality scores meet thresholds (hook ≥ 7, originality ≥ 6, ending ≥ 7)
+    success_criteria:
+      - continuity_ledger has entries for every character, location, and unresolved thread
+      - review.quality_scores present and meet min thresholds OR revision_required=true with reasons
+
+  - name: scene_plan
+    skill: pipelines/youtube-romance-story/scene-director
+    required_artifacts_in:
+      - script
+      - story_bible
+    optional_artifacts_in:
+      - continuity_ledger
+    produces:
+      - scene_plan
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Visual change every 4–8 seconds (long-form) or 2–4 seconds (Shorts)
+      - "Shot variety: establishing, close-up, reaction, OTS, insert, environment, silhouette"
+      - Not a slideshow — at least 5 distinct shot types across the video
+      - Every scene prompt references saved character definitions (no free-form character description)
+      - Music cues aligned with emotional beats
+      - Continuity references point to ledger entries
+    success_criteria:
+      - Schema-valid scene_plan artifact
+      - "Scene count matches pacing target (long: 1 cut per 4-8s; short: 1 cut per 2-4s)"
+
+  - name: character_assets
+    skill: pipelines/youtube-romance-story/character-assets-director
+    required_artifacts_in:
+      - story_bible
+      - scene_plan
+    produces:
+      - asset_manifest
+    tools_available:
+      - image_selector
+      - zai_image
+      - pixabay_image
+      - pexels_image
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Every recurring character has at least one canonical reference image
+      - Reference images match story_bible description (face, hair, wardrobe, palette)
+      - Cost estimate within budget
+    success_criteria:
+      - asset_manifest contains one entry per character with on-disk image path
+      - All image files exist and pass ffprobe/PIL validation
+
+  - name: visual_assets
+    skill: pipelines/youtube-romance-story/visual-assets-director
+    required_artifacts_in:
+      - scene_plan
+      - asset_manifest
+    optional_artifacts_in:
+      - story_bible
+    produces:
+      - asset_manifest
+    tools_available:
+      - image_selector
+      - zai_image
+      - pixabay_image
+      - pexels_image
+      - video_selector
+      - zai_video
+      - pexels_video
+      - pixabay_video
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Every scene has an image or video asset on disk
+      - Negative prompts applied to prevent feature drift
+      - Hybrid mode uses video only for emotionally important beats
+      - No silent switch to an expensive provider
+    success_criteria:
+      - asset_manifest extended with per-scene image/video paths
+      - All asset files exist on disk
+
+  - name: voice_generation
+    skill: pipelines/youtube-romance-story/voice-director
+    required_artifacts_in:
+      - script
+      - story_bible
+    produces:
+      - asset_manifest
+    tools_available:
+      - tts_selector
+      - zai_tts
+      - piper_tts
+      - elevenlabs_tts
+      - openai_tts
+      - google_tts
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Narrator voice is stable across the whole video
+      - Each speaking character has a distinct voice_id
+      - Emotional delivery rises and falls with the story — not uniformly dramatic
+      - Per-line audio files generated and on disk
+    success_criteria:
+      - asset_manifest extended with per-section narration audio paths
+      - All audio files exist and ffprobe confirms duration > 0
+
+  - name: music_and_sfx
+    skill: pipelines/youtube-romance-story/music-director
+    required_artifacts_in:
+      - scene_plan
+    produces:
+      - asset_manifest
+    tools_available:
+      - pixabay_music
+      - freesound_music
+      - music_gen
+      - audio_mixer
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Music plan maps to emotional beats (mystery, warm, attraction, uncertainty, break, payoff, cliffhanger)
+      - SFX used selectively — not constant
+      - Ducking planned so music stays below narration
+      - Only rights-cleared music used
+    success_criteria:
+      - asset_manifest extended with music + sfx paths
+      - All audio files exist on disk
+
+  - name: compose
+    skill: pipelines/youtube-romance-story/compose-director
+    required_artifacts_in:
+      - scene_plan
+      - asset_manifest
+      - script
+    produces:
+      - render_report
+      - final_review
+    required_tools:
+      - video_stitch
+      - audio_mixer
+    optional_tools:
+      - video_compose
+      - video_trimmer
+      - subtitle_gen
+      - remotion_caption_burn
+    tools_available:
+      - video_stitch
+      - video_compose
+      - video_trimmer
+      - audio_mixer
+      - subtitle_gen
+      - remotion_caption_burn
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Output MP4 plays start-to-finish without errors
+      - Narration synced to visuals
+      - Music ducked under narration
+      - Captions legible, in safe area, not covering faces
+      - Both burned-in and clean versions exported
+      - SRT and VTT exported
+    success_criteria:
+      - Schema-valid render_report artifact
+      - youtube-16x9.mp4 (or short-9x16.mp4) exists and ffprobe passes
+      - SRT, VTT, and burned-in MP4 exist
+
+  - name: quality_review
+    skill: pipelines/youtube-romance-story/quality-review-director
+    required_artifacts_in:
+      - render_report
+      - script
+    produces:
+      - review
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Quality scores meet thresholds across all 10 dimensions
+      - Retention beats present throughout
+      - Opening 30 seconds deliver hook + relationship + conflict + promise
+      - Title pays off the promise (no clickbait)
+    success_criteria:
+      - review artifact with quality_scores dict
+      - All scores ≥ thresholds OR revision_required=true
+
+  - name: shorts_extraction
+    skill: pipelines/youtube-romance-story/shorts-director
+    required_artifacts_in:
+      - render_report
+      - script
+      - scene_plan
+    produces:
+      - shorts_package
+    tools_available:
+      - video_trimmer
+      - video_stitch
+      - audio_mixer
+      - subtitle_gen
+      - remotion_caption_burn
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Each Short has an immediate hook in the first 2 seconds
+      - 9:16 vertical, 45–90 seconds
+      - Word/phrase-level burned-in captions
+      - Twist, payoff, or cliffhanger ending
+    success_criteria:
+      - At least one short-XX-9x16.mp4 file exists and passes ffprobe
+      - shorts_package artifact lists each Short with start/end source timestamps
+
+  - name: thumbnail_generation
+    skill: pipelines/youtube-romance-story/thumbnail-director
+    required_artifacts_in:
+      - scene_plan
+      - story_bible
+    produces:
+      - thumbnail_concept
+    tools_available:
+      - image_selector
+      - zai_image
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Three distinct thumbnail concepts per episode
+      - 2–5 word overlay text per concept
+      - Image generation prompt uses story_bible character descriptions
+      - Composition understandable on a phone
+    success_criteria:
+      - Schema-valid thumbnail_concept artifact
+      - 3 concepts, each with prompt, negative_prompt, overlay_text, and (after gen) image path
+
+  - name: youtube_package
+    skill: pipelines/youtube-romance-story/youtube-package-director
+    required_artifacts_in:
+      - script
+      - story_bible
+      - render_report
+    produces:
+      - youtube_package
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - 10 title options, 3 recommended
+      - Titles are emotionally specific and curiosity-driven — not keyword-stuffed
+      - Description opens with a hook line
+      - Chapters align with script beats
+      - Tags and hashtags align with genre
+      - Pinned comment, community post, playlist & end-screen recs all present
+      - 3 Shorts hooks + 3 Shorts scripts
+    success_criteria:
+      - Schema-valid youtube_package artifact
+      - youtube/ folder contains titles.md, description.md, chapters.md, tags.md, pinned-comment.md, shorts.md
+
+  - name: publish
+    skill: pipelines/youtube-romance-story/publish-director
+    required_artifacts_in:
+      - render_report
+      - youtube_package
+    produces:
+      - publish_log
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Final export package contains video, Shorts, thumbnails, metadata
+      - Files named for upload
+      - Human review complete
+    success_criteria:
+      - Schema-valid publish_log artifact
+      - All expected files present in projects/<slug>/renders/ and projects/<slug>/youtube/

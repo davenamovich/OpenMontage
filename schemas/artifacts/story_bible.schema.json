@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/story_bible",
+  "title": "Story Bible",
+  "description": "Canonical character, world, and voice definitions for a romance story. Used by every downstream stage to enforce consistency.",
+  "type": "object",
+  "required": ["version", "project_id", "characters", "world"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "project_id": { "type": "string" },
+    "format": {
+      "type": "string",
+      "enum": ["long_form", "short", "serialized", "confession", "text_message"]
+    },
+    "genre": { "type": "string" },
+    "tone": { "type": "string" },
+    "characters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["character_id", "full_name", "role", "age", "appearance", "personality", "visual_reference_prompt", "negative_prompt", "voice"],
+        "properties": {
+          "character_id": { "type": "string", "description": "Stable identifier used in every scene prompt (e.g. 'emma_main')" },
+          "full_name": { "type": "string" },
+          "role": { "type": "string", "description": "Protagonist / love_interest / antagonist / supporting" },
+          "age": { "type": "integer", "minimum": 18, "description": "All romantic characters must be adults" },
+          "appearance": {
+            "type": "object",
+            "required": ["face", "hair", "build", "wardrobe", "palette"],
+            "properties": {
+              "face": { "type": "string" },
+              "hair": { "type": "string" },
+              "build": { "type": "string" },
+              "wardrobe": { "type": "string" },
+              "palette": { "type": "array", "items": { "type": "string" }, "description": "Hex colors that anchor this character visually" }
+            },
+            "additionalProperties": false
+          },
+          "personality": {
+            "type": "object",
+            "required": ["summary", "emotional_wound", "desire", "fear", "contradiction", "speech_style"],
+            "properties": {
+              "summary": { "type": "string" },
+              "emotional_wound": { "type": "string" },
+              "desire": { "type": "string" },
+              "fear": { "type": "string" },
+              "contradiction": { "type": "string" },
+              "speech_style": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "relationships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "to_character_id": { "type": "string" },
+                "relation": { "type": "string" }
+              },
+              "required": ["to_character_id", "relation"],
+              "additionalProperties": false
+            }
+          },
+          "visual_reference_prompt": { "type": "string", "description": "Stable prompt used for every image generation of this character" },
+          "negative_prompt": { "type": "string", "description": "What to avoid — prevents feature drift" },
+          "voice": {
+            "type": "object",
+            "required": ["provider", "voice_id"],
+            "properties": {
+              "provider": { "type": "string", "description": "TTS provider name (zai_tts, piper_tts, elevenlabs_tts, etc.)" },
+              "voice_id": { "type": "string", "description": "Provider-specific voice ID" },
+              "speed": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+              "pitch": { "type": "number" }
+            },
+            "additionalProperties": false
+          },
+          "continuity_notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "world": {
+      "type": "object",
+      "required": ["setting", "time_period"],
+      "properties": {
+        "setting": { "type": "string" },
+        "time_period": { "type": "string" },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "description"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "visual_prompt": { "type": "string" },
+              "negative_prompt": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "important_objects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "description"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

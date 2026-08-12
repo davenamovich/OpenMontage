@@ -7,7 +7,7 @@
   "required": ["version", "stage", "findings"],
   "properties": {
     "version": { "type": "string", "const": "1.0" },
-    "stage": { "type": "string", "enum": ["idea", "script", "scene_plan", "assets", "edit", "compose", "publish"] },
+    "stage": { "type": "string", "enum": ["idea", "script", "scene_plan", "assets", "edit", "compose", "publish", "intake", "proposal", "story_bible", "outline", "continuity_review", "character_assets", "visual_assets", "voice_generation", "music_and_sfx", "quality_review", "shorts_extraction", "thumbnail_generation", "youtube_package"] },
     "round": { "type": "integer", "minimum": 1, "maximum": 2 },
     "findings": {
       "type": "array",

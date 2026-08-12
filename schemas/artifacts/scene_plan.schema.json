@@ -105,6 +105,22 @@
               },
               "required": ["type", "description", "source"]
             }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Pipeline-specific scene extensions (e.g., romance pipeline's image_prompt, negative_prompt, music_cue, sfx, transitions, continuity_refs)",
+            "properties": {
+              "image_prompt": { "type": "string" },
+              "negative_prompt": { "type": "string" },
+              "music_cue": { "type": "string" },
+              "sfx": { "type": "array", "items": { "type": "string" } },
+              "transition_in": { "type": "string" },
+              "transition_out": { "type": "string" },
+              "continuity_refs": { "type": "array", "items": { "type": "string" } },
+              "estimated_cost_usd": { "type": "number" },
+              "selected_provider": { "type": "string" }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": false

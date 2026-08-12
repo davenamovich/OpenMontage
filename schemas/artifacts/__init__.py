@@ -31,6 +31,13 @@ ARTIFACT_NAMES = [
     "final_review",
     "character_qa_report",
     "video_analysis_brief",
+    # Romance pipeline artifacts
+    "story_bible",
+    "outline",
+    "continuity_ledger",
+    "youtube_package",
+    "thumbnail_concept",
+    "shorts_package",
 ]
 
 

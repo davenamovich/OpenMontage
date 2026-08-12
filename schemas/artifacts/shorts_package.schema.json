@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/shorts_package",
+  "title": "Shorts Package",
+  "description": "One or more vertical 9:16 Shorts extracted from the long-form video, each with hook, source timestamps, and burned-in captions.",
+  "type": "object",
+  "required": ["version", "project_id", "shorts"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "project_id": { "type": "string" },
+    "shorts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "hook", "source_start_seconds", "source_end_seconds", "target_duration_seconds", "rendered_path"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "hook": { "type": "string", "description": "First 1-2 seconds hook" },
+          "source_start_seconds": { "type": "number", "minimum": 0 },
+          "source_end_seconds": { "type": "number", "minimum": 0 },
+          "target_duration_seconds": { "type": "integer", "minimum": 30, "maximum": 90 },
+          "captions_mode": { "type": "string", "enum": ["word_level", "phrase_level"], "default": "word_level" },
+          "cliffhanger": { "type": "string" },
+          "rendered_path": { "type": "string" },
+          "clean_rendered_path": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

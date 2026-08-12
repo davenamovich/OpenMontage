@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/youtube_package",
+  "title": "YouTube Package",
+  "description": "Complete metadata package for a YouTube upload: titles, description, chapters, tags, hashtags, pinned comment, community post, thumbnail text options, Shorts hooks, playlist & end-screen recs.",
+  "type": "object",
+  "required": ["version", "project_id", "titles", "recommended_titles", "description", "chapters", "tags"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "project_id": { "type": "string" },
+    "titles": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": { "type": "string" }
+    },
+    "recommended_titles": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "string" }
+    },
+    "opening_description_lines": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "The first 2-3 lines of the description, before the fold."
+    },
+    "description": { "type": "string" },
+    "chapters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["time_seconds", "title"],
+        "properties": {
+          "time_seconds": { "type": "integer", "minimum": 0 },
+          "title": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "hashtags": { "type": "array", "items": { "type": "string" } },
+    "pinned_comment": { "type": "string" },
+    "community_post": { "type": "string" },
+    "playlist_recommendation": { "type": "string" },
+    "end_screen_recommendation": { "type": "string" },
+    "suggested_next_episode": { "type": "string" },
+    "shorts_hooks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "shorts_scripts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "hook", "body", "cliffhanger"],
+        "properties": {
+          "title": { "type": "string" },
+          "hook": { "type": "string" },
+          "body": { "type": "string" },
+          "cliffhanger": { "type": "string" },
+          "target_duration_seconds": { "type": "integer" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "file_names": {
+      "type": "object",
+      "properties": {
+        "long_form_video": { "type": "string" },
+        "short_video": { "type": "array", "items": { "type": "string" } },
+        "thumbnail": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openmontage/artifacts/outline",
+  "title": "Story Outline",
+  "description": "Beat-by-beat outline of a romance episode, mapping each required emotional beat to concrete scenes.",
+  "type": "object",
+  "required": ["version", "project_id", "title", "beats"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "project_id": { "type": "string" },
+    "title": { "type": "string" },
+    "logline": { "type": "string" },
+    "target_word_count": { "type": "integer", "minimum": 50 },
+    "target_duration_seconds": { "type": "integer", "minimum": 10 },
+    "beats": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "beat_type", "summary", "approx_words"],
+        "properties": {
+          "id": { "type": "string" },
+          "beat_type": {
+            "type": "string",
+            "enum": [
+              "opening_hook",
+              "setup",
+              "inciting_encounter",
+              "rising_attraction",
+              "complication",
+              "midpoint_shift",
+              "emotional_break",
+              "final_choice",
+              "payoff",
+              "final_button"
+            ]
+          },
+          "summary": { "type": "string", "description": "Concrete scene description, not abstract summary" },
+          "characters_present": { "type": "array", "items": { "type": "string" } },
+          "location_id": { "type": "string" },
+          "emotional_purpose": { "type": "string" },
+          "approx_words": { "type": "integer", "minimum": 0 },
+          "retention_beat": { "type": ["string", "null"], "description": "If this beat is a deliberate retention hook (new question / revelation / decision / reversal / confession / visual change / escalation)" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

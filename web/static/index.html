@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Romance Story Engine</title>
+<style>
+:root {
+  --bg: #0f0f1a;
+  --surface: #1a1a2e;
+  --surface2: #16213e;
+  --accent: #e94560;
+  --accent2: #f5a623;
+  --text: #eaeaea;
+  --text-dim: #8888aa;
+  --border: #2a2a4a;
+  --green: #4ade80;
+  --red: #f87171;
+  --yellow: #fbbf24;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #d63851; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-danger { background: var(--red); color: white; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* Layout */
+#app { max-width: 1400px; margin: 0 auto; padding: 20px; }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+header h1 {
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+nav { display: flex; gap: 8px; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card h2 { font-size: 18px; margin-bottom: 12px; }
+.card h3 { font-size: 15px; margin-bottom: 8px; color: var(--text-dim); }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green { background: rgba(74,222,128,0.2); color: var(--green); }
+.badge-red { background: rgba(248,113,113,0.2); color: var(--red); }
+.badge-yellow { background: rgba(251,191,36,0.2); color: var(--yellow); }
+.badge-blue { background: rgba(99,179,237,0.2); color: #63b3ed; }
+
+/* Progress bar */
+.progress {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.3s;
+}
+
+/* Form */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  padding: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+.form-group textarea { min-height: 80px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab {
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  color: var(--text-dim);
+  transition: all 0.2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Project list */
+.project-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--surface2);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.project-item:hover { background: var(--border); }
+.project-item .title { font-weight: 600; }
+.project-item .premise { font-size: 12px; color: var(--text-dim); max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Stage list */
+.stage-list { display: grid; gap: 6px; }
+.stage-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--surface2);
+  font-size: 13px;
+}
+.stage-item .num { width: 24px; text-align: center; color: var(--text-dim); }
+.stage-item .name { flex: 1; }
+.stage-item .status { font-size: 11px; }
+
+/* Artifact viewer */
+.artifact-viewer {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 600px;
+  overflow-y: auto;
+}
+.artifact-viewer textarea {
+  width: 100%;
+  min-height: 400px;
+  background: var(--bg);
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: inherit;
+  resize: vertical;
+}
+
+/* Render monitor */
+.render-monitor {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: none;
+}
+.render-monitor.active { display: block; }
+.render-monitor h3 { font-size: 14px; margin-bottom: 8px; }
+.render-monitor .close { float: right; cursor: pointer; color: var(--text-dim); }
+
+/* Asset grid */
+.asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.asset-thumb {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+.asset-thumb img { max-width: 100%; border-radius: 4px; }
+.asset-thumb .name { font-size: 11px; color: var(--text-dim); margin-top: 4px; word-break: break-all; }
+
+/* Provider grid */
+.provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.provider-item {
+  background: var(--surface2);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.provider-item .name { font-weight: 600; font-size: 14px; }
+.provider-item .detail { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+/* Hidden */
+.hidden { display: none !important; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row { grid-template-columns: 1fr; }
+  #app { padding: 10px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>♥ Romance Story Engine</h1>
+    <nav>
+      <button class="btn-secondary" onclick="showView('dashboard')">Dashboard</button>
+      <button class="btn-primary" onclick="showView('new')">+ New Story</button>
+    </nav>
+  </header>
+
+  <!-- Dashboard View -->
+  <div id="view-dashboard" class="view">
+    <div class="card">
+      <h2>Projects</h2>
+      <div id="project-list"></div>
+    </div>
+    <div class="card">
+      <h2>Provider Status</h2>
+      <div id="provider-grid" class="provider-grid"></div>
+    </div>
+    <div class="card">
+      <h2>TTS Providers</h2>
+      <div id="tts-provider-grid" class="provider-grid"></div>
+    </div>
+    <div class="card">
+      <h2>Publishing (UploadPost)</h2>
+      <div id="publish-provider"></div>
+    </div>
+  </div>
+
+  <!-- New Story View -->
+  <div id="view-new" class="view hidden">
+    <div class="card">
+      <h2>Create New Story</h2>
+      <p style="color:var(--text-dim); margin-bottom:16px;">Enter a one-sentence premise and press Create. All other fields are optional with sensible defaults.</p>
+
+      <div class="form-group">
+        <label>Premise *</label>
+        <textarea id="premise" placeholder="A struggling waitress falls in love with a wealthy customer, but discovers he has been hiding why he visits the restaurant every Friday."></textarea>
+      </div>
+
+      <div id="advanced-fields" class="hidden">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Genre</label>
+            <select id="genre"></select>
+          </div>
+          <div class="form-group">
+            <label>Format</label>
+            <select id="format"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Target Duration (seconds)</label>
+            <input type="number" id="target_duration" value="540">
+          </div>
+          <div class="form-group">
+            <label>Visual Mode</label>
+            <select id="visual_mode"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Era / Decade (affects clothing, architecture, props)</label>
+            <select id="era"></select>
+          </div>
+          <div class="form-group">
+            <label>Visual Style (artistic look of images)</label>
+            <select id="visual_style"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Aspect Ratio</label>
+            <select id="output_aspect_ratio">
+              <option value="16:9">16:9 (Landscape)</option>
+              <option value="9:16">9:16 (Vertical)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Max Budget (USD)</label>
+            <input type="number" id="max_budget_usd" value="5.00" step="0.50">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Channel Name</label>
+            <input type="text" id="channel_name" value="Original Romance Stories">
+          </div>
+          <div class="form-group">
+            <label>Language</label>
+            <input type="text" id="language" value="en">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Setting</label>
+            <input type="text" id="setting" placeholder="contemporary_small_town">
+          </div>
+          <div class="form-group">
+            <label>Narration Perspective</label>
+            <select id="narration_perspective">
+              <option value="third_person_limited">Third Person Limited</option>
+              <option value="first_person">First Person</option>
+              <option value="omniscient">Omniscient</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Main Character Names (comma-separated)</label>
+          <input type="text" id="main_character_names" placeholder="Emma, Daniel">
+        </div>
+        <div class="form-group">
+          <label>Character Descriptions (one per line)</label>
+          <textarea id="character_descriptions" placeholder="Emma: 34, waitress, auburn hair&#10;Daniel: 38, wealthy customer, gray temples"></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:16px;">
+        <button class="btn-primary" id="btn-create" onclick="createProject(this)">Create Story</button>
+        <button class="btn-primary" style="background:var(--green);" id="btn-auto-create" onclick="autoCreateRun(this)">Create & Auto-Run</button>
+        <button class="btn-secondary" id="btn-advanced" onclick="toggleAdvanced(this)">Show Advanced</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspace View -->
+  <div id="view-workspace" class="view hidden">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div>
+          <h2 id="ws-title">Project</h2>
+          <p id="ws-premise" style="color:var(--text-dim); font-size:13px;"></p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-primary btn-sm" style="background:var(--green);" id="btn-auto-run" onclick="autoRunProject(this)">Auto-Run</button>
+          <button class="btn-secondary btn-sm" id="btn-run-pipeline" onclick="runPipeline(this)">Run Pipeline</button>
+          <button class="btn-secondary btn-sm" onclick="loadProject(currentProject)">Refresh</button>
+          <button class="btn-secondary btn-sm" onclick="showView('dashboard')">← Back</button>
+        </div>
+      </div>
+
+      <div class="progress">
+        <div id="ws-progress" class="progress-bar" style="width:0%"></div>
+      </div>
+      <p id="ws-progress-text" style="font-size:12px; color:var(--text-dim); margin-top:4px;"></p>
+
+      <div class="tabs" id="ws-tabs">
+        <div class="tab active" data-tab="overview" onclick="switchTab('overview')">Overview</div>
+        <div class="tab" data-tab="concept" onclick="switchTab('concept')">Concept</div>
+        <div class="tab" data-tab="characters" onclick="switchTab('characters')">Characters</div>
+        <div class="tab" data-tab="outline" onclick="switchTab('outline')">Outline</div>
+        <div class="tab" data-tab="script" onclick="switchTab('script')">Script</div>
+        <div class="tab" data-tab="scenes" onclick="switchTab('scenes')">Scenes</div>
+        <div class="tab" data-tab="voices" onclick="switchTab('voices')">Voices</div>
+        <div class="tab" data-tab="visuals" onclick="switchTab('visuals')">Visuals</div>
+        <div class="tab" data-tab="renders" onclick="switchTab('renders')">Renders</div>
+        <div class="tab" data-tab="shorts" onclick="switchTab('shorts')">Shorts</div>
+        <div class="tab" data-tab="thumbnails" onclick="switchTab('thumbnails')">Thumbnails</div>
+        <div class="tab" data-tab="youtube" onclick="switchTab('youtube')">YouTube</div>
+        <div class="tab" data-tab="publish" onclick="switchTab('publish')">Publish</div>
+      </div>
+
+      <div id="tab-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Render Monitor -->
+<div id="render-monitor" class="render-monitor">
+  <span class="close" onclick="hideMonitor()">×</span>
+  <h3>Render Monitor</h3>
+  <div id="monitor-content"></div>
+</div>
+
+<script>
+const API = '';
+let currentProject = null;
+let currentTab = 'overview';
+let metadata = null;
+let monitorInterval = null;
+
+// ---- Navigation ----
+function showView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  document.getElementById('view-' + view).classList.remove('hidden');
+  if (view === 'dashboard') loadDashboard();
+}
+
+// ---- Dashboard ----
+async function loadDashboard() {
+  const [projectsRes, providersRes, ttsRes, pubRes] = await Promise.all([
+    fetch(`${API}/api/projects`).then(r => r.json()),
+    fetch(`${API}/api/providers`).then(r => r.json()),
+    fetch(`${API}/api/tts-providers`).then(r => r.json()),
+    fetch(`${API}/api/publish-providers`).then(r => r.json()),
+  ]);
+
+  const list = document.getElementById('project-list');
+  if (!projectsRes.projects || projectsRes.projects.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-dim)">No projects yet. Click "New Story" to create one.</p>';
+  } else {
+    list.innerHTML = projectsRes.projects.map(p => `
+      <div class="project-item" onclick="loadProject('${p.project_id}')">
+        <div>
+          <div class="title">${p.title || p.project_id}</div>
+          <div class="premise">${p.premise || ''}</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="badge ${p.stages_completed === p.stages_total ? 'badge-green' : 'badge-yellow'}">${p.stages_completed}/${p.stages_total}</span>
+          <div style="font-size:11px; color:var(--text-dim); margin-top:4px;">$${(p.cost?.total_spent_usd || 0).toFixed(2)} spent</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  const grid = document.getElementById('provider-grid');
+  grid.innerHTML = Object.entries(providersRes).map(([key, p]) => `
+    <div class="provider-item">
+      <div class="name">${p.name}</div>
+      <div class="detail">
+        <span class="badge ${p.available ? 'badge-green' : 'badge-red'}">${p.available ? 'Available' : 'Unavailable'}</span>
+        ${p.version ? `<br>${p.version}` : ''}
+        ${p.url ? `<br>${p.url}` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  const ttsGrid = document.getElementById('tts-provider-grid');
+  const bestTts = ttsRes.best_available;
+  ttsGrid.innerHTML = ttsRes.providers.map(p => {
+    const isBest = p.name === bestTts;
+    return `
+      <div class="provider-item" style="${isBest ? 'border-color:var(--green);' : ''}">
+        <div class="name">${p.name.replace(/_/g, ' ')} ${isBest ? '<span class="badge badge-green">best</span>' : ''}</div>
+        <div class="detail">
+          <span class="badge ${p.available ? 'badge-green' : 'badge-red'}">${p.available ? 'Available' : 'Unavailable'}</span>
+          ${p.provider ? `<br>Provider: ${p.provider}` : ''}
+          ${p.supports?.voice_cloning ? '<br>✓ Voice cloning' : ''}
+          ${p.supports?.multilingual ? '<br>✓ Multilingual' : ''}
+          ${p.supports?.offline ? '<br>✓ Offline' : ''}
+          ${p.supports?.emotions ? '<br>✓ Emotions' : ''}
+          ${!p.available && p.install_instructions ? `<br><details><summary style="cursor:pointer;color:var(--text-dim);font-size:11px;">Setup</summary><pre style="font-size:10px;white-space:pre-wrap;margin-top:4px;">${p.install_instructions}</pre></details>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Publish provider
+  const pubDiv = document.getElementById('publish-provider');
+  const up = pubRes.uploadpost;
+  if (up) {
+    const platforms = (up.platforms || []).map(p => `<span class="badge badge-blue" style="margin:2px;">${p}</span>`).join('');
+    pubDiv.innerHTML = `
+      <div class="provider-item">
+        <div class="name">${up.name} <span class="badge ${up.available ? 'badge-green' : 'badge-red'}">${up.available ? 'Available' : 'Unavailable'}</span></div>
+        <div class="detail">
+          <p style="margin:6px 0;">API Key: ${up.api_key_set ? '✓ set' : '✗ not set'} · User: ${up.user_set ? '✓ set' : '✗ not set'}</p>
+          <p style="margin:6px 0;">Supported platforms:</p>
+          <div style="margin:4px 0;">${platforms}</div>
+          ${!up.available ? `<details><summary style="cursor:pointer;color:var(--text-dim);font-size:11px;">Setup Instructions</summary><pre style="font-size:11px;white-space:pre-wrap;margin-top:4px;">${up.install_instructions}</pre></details>` : ''}
+        </div>
+      </div>
+    `;
+  }
+}
+
+// ---- New Story ----
+async function loadMetadata() {
+  metadata = await fetch(`${API}/api/meta`).then(r => r.json());
+  const fillSelect = (id, options) => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  };
+  fillSelect('genre', metadata.genres);
+  fillSelect('format', metadata.formats);
+  fillSelect('visual_mode', metadata.visual_modes);
+  fillSelect('era', metadata.eras);
+  fillSelect('visual_style', metadata.visual_styles);
+  // Set defaults
+  if (metadata.defaults) {
+    document.getElementById('target_duration').value = metadata.defaults.target_duration;
+    document.getElementById('channel_name').value = metadata.defaults.channel_name;
+    document.getElementById('language').value = metadata.defaults.language;
+  }
+}
+
+let advancedShown = false;
+function toggleAdvanced(btn) {
+  advancedShown = !advancedShown;
+  document.getElementById('advanced-fields').classList.toggle('hidden', !advancedShown);
+  if (btn) btn.textContent = advancedShown ? 'Hide Advanced' : 'Show Advanced';
+}
+
+async function createProject(btn) {
+  const premise = document.getElementById('premise').value.trim();
+  if (!premise) { alert('Please enter a premise'); return; }
+
+  const body = { premise };
+  const fields = ['genre', 'format', 'target_duration', 'visual_mode', 'era', 'visual_style', 'output_aspect_ratio',
+    'max_budget_usd', 'channel_name', 'language', 'setting', 'narration_perspective',
+    'main_character_names', 'character_descriptions'];
+
+  fields.forEach(f => {
+    const el = document.getElementById(f);
+    if (el && el.value) {
+      if (f === 'main_character_names') {
+        body[f] = el.value.split(',').map(s => s.trim()).filter(Boolean);
+      } else if (f === 'character_descriptions') {
+        body[f] = el.value.split('\n').map(s => s.trim()).filter(Boolean);
+      } else if (f === 'target_duration' || f === 'max_budget_usd') {
+        body[f] = Number(el.value);
+      } else {
+        body[f] = el.value;
+      }
+    }
+  });
+
+  const res = await fetch(`${API}/api/projects`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(r => r.json());
+
+  if (res.project_id) {
+    loadProject(res.project_id);
+  } else {
+    alert('Error: ' + JSON.stringify(res));
+  }
+}
+
+async function autoCreateRun(btn) {
+  const premise = document.getElementById('premise').value.trim();
+  if (!premise) { alert('Please enter a premise'); return; }
+
+  const body = { premise };
+  const fields = ['genre', 'format', 'target_duration', 'visual_mode', 'era', 'visual_style', 'output_aspect_ratio',
+    'max_budget_usd', 'channel_name', 'language', 'setting', 'narration_perspective',
+    'main_character_names', 'character_descriptions'];
+
+  fields.forEach(f => {
+    const el = document.getElementById(f);
+    if (el && el.value) {
+      if (f === 'main_character_names') {
+        body[f] = el.value.split(',').map(s => s.trim()).filter(Boolean);
+      } else if (f === 'character_descriptions') {
+        body[f] = el.value.split('\n').map(s => s.trim()).filter(Boolean);
+      } else if (f === 'target_duration' || f === 'max_budget_usd') {
+        body[f] = Number(el.value);
+      } else {
+        body[f] = el.value;
+      }
+    }
+  });
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Starting...'; }
+
+  const res = await fetch(`${API}/api/auto-create-run`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(r => r.json());
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Create & Auto-Run'; }
+
+  if (res.project_id && res.job_id) {
+    currentProject = res.project_id;
+    showView('workspace');
+    loadProject(res.project_id);
+    showMonitor(res.job_id);
+  } else {
+    alert('Error: ' + JSON.stringify(res));
+  }
+}
+
+// ---- Workspace ----
+async function loadProject(projectId) {
+  currentProject = projectId;
+  showView('workspace');
+
+  const res = await fetch(`${API}/api/projects/${projectId}`).then(r => r.json());
+  const status = res.status;
+  const artifacts = res.artifacts || {};
+
+  document.getElementById('ws-title').textContent =
+    (artifacts.brief?.title) || (res.intake?.title) || projectId;
+  document.getElementById('ws-premise').textContent =
+    res.intake?.premise || '';
+
+  const pct = (status.stages_completed / status.stages_total) * 100;
+  document.getElementById('ws-progress').style.width = pct + '%';
+  document.getElementById('ws-progress-text').textContent =
+    `${status.stages_completed}/${status.stages_total} stages complete · $${(status.cost_snapshot?.total_spent_usd || 0).toFixed(2)} spent`;
+
+  window._projectData = res;
+  switchTab(currentTab);
+}
+
+async function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  const content = document.getElementById('tab-content');
+  const data = window._projectData || {};
+  const artifacts = data.artifacts || {};
+
+  switch (tab) {
+    case 'overview':
+      content.innerHTML = renderOverview(data);
+      break;
+    case 'concept':
+      content.innerHTML = renderConcept(artifacts);
+      break;
+    case 'characters':
+      content.innerHTML = renderCharacters(artifacts);
+      break;
+    case 'outline':
+      content.innerHTML = renderOutline(artifacts);
+      break;
+    case 'script':
+      content.innerHTML = renderScript(artifacts, data);
+      break;
+    case 'scenes':
+      content.innerHTML = renderScenes(artifacts);
+      break;
+    case 'voices':
+      content.innerHTML = renderVoices(artifacts, data);
+      break;
+    case 'visuals':
+      content.innerHTML = renderVisuals(artifacts, data);
+      break;
+    case 'renders':
+      content.innerHTML = renderRenders(data);
+      break;
+    case 'shorts':
+      content.innerHTML = renderShorts(artifacts);
+      break;
+    case 'thumbnails':
+      content.innerHTML = renderThumbnails(artifacts);
+      break;
+    case 'youtube':
+      content.innerHTML = renderYouTube(artifacts);
+      break;
+    case 'publish':
+      content.innerHTML = await renderPublish(artifacts);
+      break;
+  }
+}
+
+function renderOverview(data) {
+  const status = data.status;
+  const stages = ['intake','proposal','story_bible','outline','script','continuity_review','scene_plan','character_assets','visual_assets','voice_generation','music_and_sfx','compose','quality_review','shorts_extraction','thumbnail_generation','youtube_package','publish'];
+  const completed = new Set(status.stages_completed_names);
+
+  let html = '<div class="stage-list">';
+  stages.forEach((s, i) => {
+    const isDone = completed.has(s);
+    const isNext = s === status.next_stage;
+    const badge = isDone ? '<span class="badge badge-green">✓ done</span>' :
+                  isNext ? '<span class="badge badge-yellow">next</span>' :
+                  '<span class="badge badge-blue">pending</span>';
+    html += `<div class="stage-item">
+      <span class="num">${i+1}</span>
+      <span class="name">${s.replace(/_/g, ' ')}</span>
+      ${badge}
+      ${isNext ? `<button class="btn-primary btn-sm" onclick="runStage('${s}', this)">Run</button>` : ''}
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderConcept(artifacts) {
+  const pp = artifacts.proposal_packet;
+  if (!pp) return '<p style="color:var(--text-dim)">No concept yet. Run the proposal stage.</p>';
+  const meta = pp.metadata || {};
+  const sel = meta.selected_concept || {};
+  const all = meta.all_concepts || [];
+
+  let html = `<div class="card"><h3>Selected: ${sel.title || ''}</h3>`;
+  html += `<p><strong>Hook:</strong> ${sel.opening_hook || ''}</p>`;
+  html += `<p><strong>Logline:</strong> ${sel.logline || ''}</p>`;
+  html += `<p><strong>Central Conflict:</strong> ${sel.central_conflict || ''}</p>`;
+  html += `<p><strong>Final Button:</strong> ${sel.final_button || ''}</p>`;
+  html += `<p><strong>Recommendation:</strong> ${meta.recommendation_reason || ''}</p>`;
+  html += '</div>';
+
+  if (all.length > 1) {
+    html += '<h3>All Concepts</h3>';
+    all.forEach(c => {
+      html += `<div class="card"><h3>${c.title}</h3><p>${c.logline || ''}</p><p style="color:var(--text-dim);font-size:13px;">Hook: ${c.opening_hook || ''}</p></div>`;
+    });
+  }
+  return html;
+}
+
+function renderCharacters(artifacts) {
+  const bible = artifacts.story_bible;
+  if (!bible) return '<p style="color:var(--text-dim)">No story bible yet.</p>';
+  return bible.characters.map(c => `
+    <div class="card">
+      <h3>${c.full_name} <span class="badge badge-blue">${c.role}</span></h3>
+      <p><strong>Age:</strong> ${c.age} · <strong>ID:</strong> ${c.character_id}</p>
+      <p><strong>Appearance:</strong> ${c.appearance?.face || ''}, ${c.appearance?.hair || ''}, ${c.appearance?.wardrobe || ''}</p>
+      <p><strong>Personality:</strong> ${c.personality?.summary || ''}</p>
+      <p><strong>Wound:</strong> ${c.personality?.emotional_wound || ''}</p>
+      <p><strong>Desire:</strong> ${c.personality?.desire || ''}</p>
+      <p><strong>Voice:</strong> ${c.voice?.provider || ''} / ${c.voice?.voice_id || ''}</p>
+      <details><summary style="cursor:pointer;color:var(--text-dim)">Visual Reference Prompt</summary><p style="font-size:13px;color:var(--text-dim)">${c.visual_reference_prompt || ''}</p></details>
+      ${c.character_id ? `<img src="/api/projects/${currentProject}/assets/characters/${c.character_id}.png" onerror="this.style.display='none'" style="max-width:200px;border-radius:8px;margin-top:8px;">` : ''}
+    </div>
+  `).join('');
+}
+
+function renderOutline(artifacts) {
+  const o = artifacts.outline;
+  if (!o) return '<p style="color:var(--text-dim)">No outline yet.</p>';
+  return `<div class="card"><h3>${o.title}</h3><p>${o.logline || ''}</p></div>` +
+    o.beats.map((b, i) => `
+      <div class="stage-item">
+        <span class="num">${i+1}</span>
+        <span class="name"><strong>${b.beat_type.replace(/_/g,' ')}</strong> (~${b.approx_words}w)<br><span style="color:var(--text-dim);font-size:12px;">${b.summary || ''}</span></span>
+        ${b.retention_beat ? `<span class="badge badge-yellow">${b.retention_beat}</span>` : ''}
+      </div>
+    `).join('');
+}
+
+function renderScript(artifacts, data) {
+  const s = artifacts.script;
+  if (!s) return '<p style="color:var(--text-dim)">No script yet. Run the script stage.</p>';
+  const html = `<div class="card">
+    <h3>${s.title}</h3>
+    <p style="color:var(--text-dim)">Duration: ${s.total_duration_seconds?.toFixed(1)}s · Sections: ${s.sections?.length}</p>
+    <div style="display:flex;gap:8px;margin:12px 0;">
+      <button class="btn-secondary btn-sm" onclick="editScript()">Edit</button>
+      <button class="btn-secondary btn-sm" onclick="saveScript()">Save</button>
+      <button class="btn-secondary btn-sm" onclick="runStage('compose', this)">Re-render</button>
+    </div>
+    <div id="script-editor" class="artifact-viewer">
+      <textarea id="script-textarea">${JSON.stringify(s, null, 2)}</textarea>
+    </div>
+  </div>`;
+  return html;
+}
+
+function editScript() { /* already editable */ }
+async function saveScript() {
+  const ta = document.getElementById('script-textarea');
+  try {
+    const data = JSON.parse(ta.value);
+    await fetch(`${API}/api/projects/${currentProject}/artifacts/script`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data }),
+    });
+    alert('Script saved!');
+  } catch (e) { alert('Invalid JSON: ' + e.message); }
+}
+
+function renderScenes(artifacts) {
+  const sp = artifacts.scene_plan;
+  if (!sp) return '<p style="color:var(--text-dim)">No scene plan yet.</p>';
+  return `<p style="color:var(--text-dim)">${sp.scenes?.length} scenes · ${sp.metadata?.shot_variety_count || 0} shot types</p>` +
+    sp.scenes.map(sc => `
+      <div class="stage-item">
+        <span class="num">${sc.id}</span>
+        <span class="name">
+          <strong>${sc.shot_language?.shot_size || '?'}</strong> · ${sc.shot_language?.camera_movement || 'static'} · ${sc.shot_language?.lighting_key || 'natural'}
+          <br><span style="color:var(--text-dim);font-size:12px;">${sc.description || ''}</span>
+        </span>
+        <span style="font-size:11px;color:var(--text-dim)">${sc.start_seconds?.toFixed(1)}-${sc.end_seconds?.toFixed(1)}s</span>
+      </div>
+    `).join('');
+}
+
+function renderVoices(artifacts, data) {
+  const manifest = artifacts.asset_manifest;
+  if (!manifest) return '<p style="color:var(--text-dim)">No assets yet. Run voice_generation.</p>';
+  const audios = (manifest.assets || []).filter(a => a.type === 'section_audio' || a.type === 'narration_audio');
+  if (audios.length === 0) return '<p style="color:var(--text-dim)">No voice files yet.</p>';
+  return audios.map(a => `
+    <div class="stage-item">
+      <span class="name">${a.section_id || a.speaker || 'audio'} ${a.segment_index !== undefined ? '#'+a.segment_index : ''}</span>
+      <audio controls src="/api/projects/${currentProject}/assets/${a.path.replace('assets/','')}" style="height:28px;"></audio>
+    </div>
+  `).join('');
+}
+
+function renderVisuals(artifacts, data) {
+  const manifest = artifacts.asset_manifest;
+  if (!manifest) return '<p style="color:var(--text-dim)">No assets yet. Run visual_assets.</p>';
+  const imgs = (manifest.assets || []).filter(a => a.type === 'scene_image');
+  if (imgs.length === 0) return '<p style="color:var(--text-dim)">No scene images yet.</p>';
+  return `<div class="asset-grid">` + imgs.map(a => {
+    const relPath = a.path.replace(/^.*assets\//, '');
+    return `<div class="asset-thumb">
+      <img src="/api/projects/${currentProject}/assets/${relPath}" loading="lazy">
+      <div class="name">${a.scene_id}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderRenders(data) {
+  const rr = data.artifacts?.render_report;
+  if (!rr) return '<p style="color:var(--text-dim)">No renders yet. Run compose.</p>';
+  const outputs = rr.outputs || [];
+  let html = '<div class="card"><h3>Render Outputs</h3>';
+  outputs.forEach(o => {
+    const isVideo = o.path.endsWith('.mp4');
+    const relPath = o.path.replace(/^.*projects\/[^/]+\//, '');
+    html += `<div style="margin-bottom:12px;">
+      <strong>${o.format?.toUpperCase()}</strong> ${o.resolution || ''} ${o.duration_seconds?.toFixed(1) || ''}s
+      ${isVideo ? `<br><video controls src="/api/projects/${currentProject}/assets/${relPath.replace('renders/','')}" style="max-width:100%;margin-top:8px;border-radius:8px;"></video>` : ''}
+    </div>`;
+  });
+  html += '</div>';
+  if (rr.verification_notes) {
+    html += '<div class="card"><h3>Verification</h3>' + rr.verification_notes.map(n => `<p>• ${n}</p>`).join('') + '</div>';
+  }
+  return html;
+}
+
+function renderShorts(artifacts) {
+  const sp = artifacts.shorts_package;
+  if (!sp) return '<p style="color:var(--text-dim)">No shorts yet. Run shorts_extraction.</p>';
+  return sp.shorts.map(s => `
+    <div class="card">
+      <h3>${s.title}</h3>
+      <p style="color:var(--text-dim)">${s.source_start_seconds}-${s.source_end_seconds}s → ${s.target_duration_seconds}s</p>
+      <p><strong>Hook:</strong> ${s.hook || ''}</p>
+      <p><strong>Cliffhanger:</strong> ${s.cliffhanger || ''}</p>
+      ${s.rendered_path ? `<video controls src="/api/projects/${currentProject}/assets/${s.rendered_path.replace(/^.*renders\//,'')}" style="max-width:300px;border-radius:8px;margin-top:8px;"></video>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderThumbnails(artifacts) {
+  const tc = artifacts.thumbnail_concept;
+  if (!tc) return '<p style="color:var(--text-dim)">No thumbnails yet. Run thumbnail_generation.</p>';
+  return `<div class="asset-grid">` + tc.concepts.map(c => `
+    <div class="asset-thumb">
+      ${c.rendered_image_path ? `<img src="/api/projects/${currentProject}/assets/${c.rendered_image_path.replace(/^.*thumbnails\//,'')}">` : ''}
+      <div class="name"><strong>${c.overlay_text || ''}</strong><br>${c.main_character_expression || ''}</div>
+    </div>
+  `).join('') + '</div>';
+}
+
+function renderYouTube(artifacts) {
+  const yp = artifacts.youtube_package;
+  if (!yp) return '<p style="color:var(--text-dim)">No YouTube package yet. Run youtube_package.</p>';
+  let html = '<div class="card"><h3>Recommended Titles</h3>';
+  yp.recommended_titles?.forEach(t => html += `<p>• ${t}</p>`);
+  html += '</div>';
+  if (yp.description) {
+    html += `<div class="card"><h3>Description</h3><p style="white-space:pre-wrap">${yp.description}</p></div>`;
+  }
+  if (yp.chapters?.length) {
+    html += '<div class="card"><h3>Chapters</h3>';
+    yp.chapters.forEach(c => {
+      const m = Math.floor(c.time_seconds / 60);
+      const s = c.time_seconds % 60;
+      html += `<p>${m}:${s.toString().padStart(2,'0')} ${c.title}</p>`;
+    });
+    html += '</div>';
+  }
+  if (yp.tags?.length) {
+    html += `<div class="card"><h3>Tags</h3><p>${yp.tags.join(', ')}</p></div>`;
+  }
+  return html;
+}
+
+async function renderPublish(artifacts) {
+  // Fetch publish provider info
+  const pubRes = await fetch(`${API}/api/publish-providers`).then(r => r.json());
+  const up = pubRes.uploadpost;
+
+  let html = '<div class="card"><h3>Social Media Publishing (UploadPost)</h3>';
+
+  if (!up.available) {
+    html += `<p style="color:var(--red)">UploadPost is not configured.</p>`;
+    html += `<p style="color:var(--text-dim);font-size:13px;">To enable social media publishing:</p>`;
+    html += `<pre style="font-size:12px;white-space:pre-wrap;background:var(--surface2);padding:12px;border-radius:8px;overflow-x:auto;">${up.install_instructions}</pre>`;
+    html += '</div>';
+    return html;
+  }
+
+  // Show platform selection
+  html += '<p style="color:var(--text-dim);margin-bottom:12px;">Select platforms to publish to:</p>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:16px;">';
+  for (const p of up.platforms) {
+    const checked = p === 'youtube' ? 'checked' : '';
+    html += `
+      <label style="display:flex;align-items:center;gap:6px;padding:8px;background:var(--surface2);border-radius:6px;cursor:pointer;">
+        <input type="checkbox" class="pub-platform" value="${p}" ${checked}> ${p}
+      </label>
+    `;
+  }
+  html += '</div>';
+
+  // Options
+  html += `
+    <div style="margin-bottom:16px;">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="pub-shorts" checked> Also publish Shorts to TikTok/Instagram
+      </label>
+    </div>
+  `;
+
+  html += '<button class="btn-primary" id="btn-publish" onclick="publishToSocial(this)">Publish Now</button>';
+  html += '<div id="publish-result" style="margin-top:16px;"></div>';
+  html += '</div>';
+
+  // Show existing publish results if any
+  const pl = artifacts.publish_log;
+  if (pl?.metadata?.social_publishing?.results?.length > 0) {
+    html += '<div class="card"><h3>Previous Publish Results</h3>';
+    for (const r of pl.metadata.social_publishing.results) {
+      html += `<div class="stage-item"><span class="name">${r.type}: ${r.title || r.platforms?.join(',') || ''}</span>`;
+      if (r.request_id) html += ` <span class="badge badge-green">request_id: ${r.request_id}</span>`;
+      if (r.error) html += ` <span class="badge badge-red">${r.error}</span>`;
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
+  return html;
+}
+
+async function publishToSocial() {
+  if (!currentProject) return;
+  const platforms = Array.from(document.querySelectorAll('.pub-platform:checked')).map(el => el.value);
+  if (platforms.length === 0) {
+    alert('Select at least one platform');
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Publishing...'; }
+  document.getElementById('publish-result').innerHTML = '<p style="color:var(--text-dim)">Uploading... this may take a minute.</p>';
+
+  try {
+    const res = await fetch(`${API}/api/projects/${currentProject}/publish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platforms, publish_shorts: document.getElementById('pub-shorts').checked }),
+    }).then(r => r.json());
+
+    const results = res.result?.data?.metadata?.social_publishing?.results || [];
+    if (results.length > 0) {
+      let html = '<div class="card"><h3>Publish Results</h3>';
+      for (const r of results) {
+        if (r.request_id) {
+          html += `<div class="stage-item"><span class="name">✓ ${r.type}: ${r.title || r.platforms?.join(',')}</span><span class="badge badge-green">request_id: ${r.request_id}</span></div>`;
+        } else if (r.error) {
+          html += `<div class="stage-item"><span class="name">✗ ${r.type}</span><span class="badge badge-red">${r.error}</span></div>`;
+        }
+      }
+      html += '</div>';
+      document.getElementById('publish-result').innerHTML = html;
+    } else {
+      document.getElementById('publish-result').innerHTML = '<p style="color:var(--text-dim)">No results. Check that the render stage completed.</p>';
+    }
+  } catch (e) {
+    document.getElementById('publish-result').innerHTML = `<p style="color:var(--red)">Error: ${e.message}</p>`;
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Publish Now'; }
+}
+
+// ---- Stage execution ----
+async function runStage(stage, btn) {
+  if (!currentProject) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Running...'; }
+
+  try {
+    const res = await fetch(`${API}/api/projects/${currentProject}/stages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage }),
+    }).then(r => r.json());
+
+    if (res.result?.error) {
+      alert('Stage failed: ' + res.result.error);
+    } else {
+      loadProject(currentProject);
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Run'; }
+}
+
+async function runPipeline(btn) {
+  if (!currentProject) return;
+  if (!confirm('Run the full pipeline? This will execute all remaining stages.')) return;
+
+  const res = await fetch(`${API}/api/projects/${currentProject}/pipeline`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ background: true }),
+  }).then(r => r.json());
+
+  if (res.job_id) {
+    showMonitor(res.job_id);
+  }
+}
+
+async function autoRunProject(btn) {
+  if (!currentProject) return;
+  if (!confirm('Auto-run all remaining stages in the background?')) return;
+
+  const res = await fetch(`${API}/api/projects/${currentProject}/auto-run`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }).then(r => r.json());
+
+  if (res.job_id) {
+    showMonitor(res.job_id);
+  }
+}
+
+// ---- Render Monitor ----
+function showMonitor(jobId) {
+  const mon = document.getElementById('render-monitor');
+  mon.classList.add('active');
+  monitorInterval = setInterval(() => pollJob(jobId), 2000);
+  pollJob(jobId);
+}
+
+function hideMonitor() {
+  document.getElementById('render-monitor').classList.remove('active');
+  if (monitorInterval) { clearInterval(monitorInterval); monitorInterval = null; }
+}
+
+async function pollJob(jobId) {
+  try {
+    const res = await fetch(`${API}/api/projects/${currentProject}/jobs/${jobId}`).then(r => r.json());
+    const content = document.getElementById('monitor-content');
+    const status = res.project_status;
+    const pct = (status.stages_completed / status.stages_total) * 100;
+
+    content.innerHTML = `
+      <div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <p style="font-size:12px;margin:8px 0;">
+        <span class="badge ${res.status === 'completed' ? 'badge-green' : res.status === 'failed' ? 'badge-red' : 'badge-yellow'}">${res.status}</span>
+        ${res.stage || ''}
+      </p>
+      <p style="font-size:11px;color:var(--text-dim)">${status.stages_completed}/${status.stages_total} stages · $${(status.cost_snapshot?.total_spent_usd || 0).toFixed(2)}</p>
+      ${res.error ? `<p style="color:var(--red);font-size:12px;">${res.error}</p>` : ''}
+    `;
+
+    if (res.status === 'completed' || res.status === 'failed') {
+      clearInterval(monitorInterval);
+      monitorInterval = null;
+      loadProject(currentProject);
+      if (res.status === 'completed') {
+        setTimeout(hideMonitor, 3000);
+      }
+    }
+  } catch (e) {
+    console.error('Poll error:', e);
+  }
+}
+
+// ---- Init ----
+loadMetadata();
+loadDashboard();
+</script>
+</body>
+</html>

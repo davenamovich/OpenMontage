@@ -7,18 +7,19 @@
   "required": ["version", "assets"],
   "properties": {
     "version": { "type": "string", "const": "1.0" },
+    "project_id": { "type": "string", "description": "Project identifier (romance pipeline extension)" },
     "assets": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "type", "path", "source_tool", "scene_id"],
+        "required": ["type", "path"],
         "properties": {
           "id": { "type": "string" },
           "type": {
             "type": "string",
-            "enum": ["image", "video", "audio", "narration", "music", "sfx", "diagram", "animation", "code_snippet", "subtitle", "font", "lut"]
+            "description": "Asset type. Standard types: image, video, audio, narration, music, sfx. Romance pipeline extensions: character_reference, scene_image, narration_audio, dialogue_audio, section_audio, music_track, sfx_track."
           },
-          "path": { "type": "string", "description": "Relative path within the pipeline project directory" },
+          "path": { "type": "string", "description": "Relative or absolute path to the asset file" },
           "source_tool": { "type": "string" },
           "scene_id": { "type": "string" },
           "prompt": { "type": "string", "description": "Generation prompt if AI-generated" },
@@ -31,9 +32,20 @@
           "quality_score": { "type": "number", "minimum": 0, "maximum": 1 },
           "subtype": { "type": "string", "description": "Sub-classification (e.g. 'background', 'stock', 'generated')" },
           "generation_summary": { "type": "string", "description": "Brief summary of how the asset was generated or sourced" },
-          "provider": { "type": "string", "description": "Provider name (e.g. pixabay, google_imagen)" },
+          "provider": { "type": "string", "description": "Provider name (e.g. pixabay, google_imagen, zai_image)" },
           "license": { "type": "string", "description": "License type (e.g. Pixabay License, CC0)" },
-          "original_url": { "type": "string", "description": "Source URL if downloaded from a stock service" }
+          "original_url": { "type": "string", "description": "Source URL if downloaded from a stock service" },
+          "negative_prompt": { "type": "string", "description": "Negative prompt used for generation (romance pipeline)" },
+          "character_id": { "type": "string", "description": "Character ID for character_reference assets (romance pipeline)" },
+          "section_id": { "type": "string", "description": "Script section ID for narration/dialogue assets (romance pipeline)" },
+          "segment_index": { "type": "integer", "description": "Index within a section for multi-segment narration (romance pipeline)" },
+          "speaker": { "type": "string", "description": "Speaker ID for dialogue assets (romance pipeline)" },
+          "voice_id": { "type": "string", "description": "TTS voice ID used (romance pipeline)" },
+          "text": { "type": "string", "description": "Text content for narration/dialogue assets (romance pipeline)" },
+          "start_seconds": { "type": "number", "description": "Start time in the final video (romance pipeline)" },
+          "end_seconds": { "type": "number", "description": "End time in the final video (romance pipeline)" },
+          "cue": { "type": "string", "description": "Music cue name for music_track assets (romance pipeline)" },
+          "effect": { "type": "string", "description": "SFX effect name for sfx_track assets (romance pipeline)" }
         },
         "additionalProperties": false
       }

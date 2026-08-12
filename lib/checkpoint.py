@@ -20,6 +20,11 @@ from schemas.artifacts import ARTIFACT_NAMES, validate_artifact
 ALL_KNOWN_STAGES = frozenset([
     "research", "proposal", "idea", "script", "scene_plan",
     "assets", "edit", "compose", "publish",
+    # Romance pipeline stages
+    "intake", "concept", "story_bible", "outline", "continuity_review",
+    "character_assets", "visual_assets", "voice_generation", "music_and_sfx",
+    "quality_review", "shorts_extraction", "thumbnail_generation",
+    "youtube_package",
 ])
 
 # Backward-compatible alias — existing code / tests that import STAGES still work.
@@ -37,6 +42,21 @@ CANONICAL_STAGE_ARTIFACTS = {
     "edit": "edit_decisions",
     "compose": "render_report",
     "publish": "publish_log",
+    # Romance pipeline stages — each maps to its canonical artifact
+    "intake": "brief",
+    "concept": "proposal_packet",
+    "proposal": "proposal_packet",  # alias for OpenMontage compatibility
+    "story_bible": "story_bible",
+    "outline": "outline",
+    "continuity_review": "continuity_ledger",
+    "character_assets": "asset_manifest",
+    "visual_assets": "asset_manifest",
+    "voice_generation": "asset_manifest",
+    "music_and_sfx": "asset_manifest",
+    "quality_review": "review",
+    "shorts_extraction": "shorts_package",
+    "thumbnail_generation": "thumbnail_concept",
+    "youtube_package": "youtube_package",
 }
 
 # Additional artifacts that may be produced alongside canonical ones.
